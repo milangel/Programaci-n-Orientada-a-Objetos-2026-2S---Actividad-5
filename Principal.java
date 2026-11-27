@@ -1,9 +1,9 @@
-package Nómina;
+package Hotel;
 
 public class Principal {
     public static void main(String[] args) {
-        VentanaPrincipal miVentanaPrincipal = new VentanaPrincipal();
+        Hotel hotel = new Hotel();
+        VentanaPrincipal miVentanaPrincipal = new VentanaPrincipal(hotel);
         miVentanaPrincipal.setVisible(true);
-        miVentanaPrincipal.setResizable(false);
     }
 }

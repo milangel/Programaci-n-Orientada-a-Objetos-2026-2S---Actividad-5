@@ -1,82 +1,68 @@
-package Nómina;
+package Hotel;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
-import java.io.*;
 
 public class VentanaPrincipal extends JFrame implements ActionListener {
     private Container contenedor;
-    ListaEmpleados empleados;
     private JMenuBar barraMenu;
     private JMenu menuOpciones;
     private JMenuItem itemMenu1;
     private JMenuItem itemMenu2;
-    private JMenuItem itemMenu3;
+    private Hotel hotel;
 
-    public VentanaPrincipal() {
-        empleados = new ListaEmpleados();
+    public VentanaPrincipal(Hotel hotel) {
+        this.hotel = hotel;
         inicio();
-        setTitle("Nómina");
+        setTitle("Hotel");
         setSize(280, 380);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
     }
 
-    public void inicio() {
+    private void inicio() {
         contenedor = getContentPane();
         contenedor.setLayout(null);
 
         barraMenu = new JMenuBar();
         menuOpciones = new JMenu("Menú");
-        itemMenu1 = new JMenuItem("Agregar empleado");
-        itemMenu2 = new JMenuItem("Calcular nómina");
-        itemMenu3 = new JMenuItem("Guardar archivo");
+        itemMenu1 = new JMenuItem("Consultar habitaciones");
+        itemMenu2 = new JMenuItem("Salida de huéspedes");
 
         menuOpciones.add(itemMenu1);
         menuOpciones.add(itemMenu2);
-        menuOpciones.add(new JSeparator());
-        menuOpciones.add(itemMenu3);
         barraMenu.add(menuOpciones);
         setJMenuBar(barraMenu);
 
         itemMenu1.addActionListener(this);
         itemMenu2.addActionListener(this);
-        itemMenu3.addActionListener(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent evento) {
         if (evento.getSource() == itemMenu1) {
-            VentanaAgregarEmpleado ventanaAgregar = new VentanaAgregarEmpleado(empleados);
-            ventanaAgregar.setVisible(true);
+            VentanaHabitaciones ventanaHabitaciones = new VentanaHabitaciones(hotel);
+            ventanaHabitaciones.setVisible(true);
         }
         if (evento.getSource() == itemMenu2) {
-            VentanaNómina ventanaNómina = new VentanaNómina(empleados);
-            ventanaNómina.setVisible(true);
-        }
-        if (evento.getSource() == itemMenu3) {
-            JFileChooser fc = new JFileChooser();
-            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            int respuesta = fc.showOpenDialog(this);
-            if (respuesta == JFileChooser.APPROVE_OPTION) {
-                File directorioElegido = fc.getSelectedFile();
-                String ruta = directorioElegido.getAbsolutePath();
-                try {
-                    String contenido = empleados.convertirTexto();
-                    File file = new File(ruta + File.separator + "Nómina.txt");
-                    file.createNewFile();
-                    FileWriter fw = new FileWriter(file);
-                    BufferedWriter bw = new BufferedWriter(fw);
-                    bw.write(contenido);
-                    bw.close();
-                    String texto = "El archivo de la nómina Nómina.txt se ha creado en " + directorioElegido.getName();
-                    JOptionPane.showMessageDialog(this, texto, "Mensaje", JOptionPane.INFORMATION_MESSAGE, null);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            try {
+                String númeroHabitación = JOptionPane.showInputDialog(
+                        null, "Ingrese número de habitación", "Salida de huéspedes", JOptionPane.QUESTION_MESSAGE);
+                if (númeroHabitación == null) return;
+                int número = Integer.valueOf(númeroHabitación);
+                if (número < 1 || número > 10) {
+                    JOptionPane.showMessageDialog(this, "El número de habitación debe estar entre 1 y 10", "Mensaje", JOptionPane.INFORMATION_MESSAGE, null);
+                } else if (hotel.buscarHabitaciónOcupada(número)) {
+                    VentanaSalida ventanaSalida = new VentanaSalida(hotel, número);
+                    ventanaSalida.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(this, "La habitación ingresada no ha sido ocupada", "Mensaje", JOptionPane.INFORMATION_MESSAGE, null);
                 }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Campo nulo o error en formato de numero", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
